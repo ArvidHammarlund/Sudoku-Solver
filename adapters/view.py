@@ -48,7 +48,7 @@ class ViewCLI(View):
             row = ""
             for digit, mark in zip(board[i], highlight[i]):
                 tmp = " " if digit == 0 else str(digit)
-                if mark:
+                if not mark:
                     tmp = "<" + tmp + ">|"
                 else:
                     tmp = " " + tmp + " |"

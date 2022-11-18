@@ -5,89 +5,102 @@
 #
 
 from abc import ABC, abstractmethod
+from math import floor
 
 class Tile(object):
     """Unit of area displaying either 0-9, where 0 signifies empty."""
     def __init__(self, digit: int = 0) -> None:
         self.__digit = digit
-        self.__subscriptions = []
+        self.__subscriptions: list[TileGroup] = []
+    
+    # --- METHODS ---
 
-    # --- SETTERS & GETTERS ---
-    def get_digit(self) -> int:
-        return self.__digit
+    def valid_assignment(self, digit: int):
+        return not any([x.contains(digit) for x in self.__subscriptions])     
 
-    def change_digit(self, digit: int) -> None:
-        if not self.__allows_new_digit(digit):
-            raise Exception("Invalid input")
-        self.__digit = digit
-
-    def __allows_new_digit(self, digit: int):
-        do_allow = False
-        if digit > 0 and digit < 10:
-            for grouping in self.__subscriptions:
-                if grouping.contains_digit(digit):
-                    break
-            else:
-                do_allow = True
-        return do_allow
-                 
     def add_subscription(self, grouping):
         self.__subscriptions.append(grouping)
 
-    def get_subscriptions(self):
-        return self.__subscriptions
+    # --- SETTERS & GETTERS ---
+
+    def get_digit(self) -> int:
+        return self.__digit
+
+    def set_digit(self, digit: int) -> None:
+        self.__digit = digit
 
 
-class TileGrouping(ABC, object):
+class TileGroup(ABC, object):
     """Collection of references to Tile objects."""
     def __init__(self, members: list[Tile]) -> None:
         self.__members = members
+        self.__subscribe_members()
 
     # --- METHODS ---
-    def subscribe_tiles(self):  
+   
+    def valid_assignments(self, digit):
+        return [member.valid_assignment(digit) for member in self.__members]
+
+    def parse(self):
+        return [member.get_digit() for member in self.__members]
+
+    def contains(self, digit: int) -> bool:
+        """Checks whether grouping already contains n"""
+        return digit in self.parse()
+
+    # --- HELPERS ---
+    
+    def __subscribe_members(self):  
         for tile in self.__members:
             tile.add_subscription(self)
 
-    def contains_digit(self, n: int) -> bool:
-        """Checks whether grouping already contains n"""
-        do_contain = False
-        for tile in self.__members:
-            if tile.get_digit() == n:
-                do_contain = True
-                break
-        return do_contain
-
     # --- SETTERS & GETTERS ---
-    def get_members(self) -> list[Tile]:
+
+    def set_digit(self, idx: int, digit: int):
+        self.__members[idx].set_digit(digit)
+
+    def ref(self):
+        return self
+
+    def get_members(self):
         return self.__members
 
 
-class SudokuRow(TileGrouping):
-    """Set of 9 tiles, horizontally adjacent."""
-    def __init__(self, members: list[Tile]) -> None:
-        super().__init__(members)
-        self.subscribe_tiles()
+class Row(TileGroup, object):
+    def __init__(self, size: int):
+        super().__init__(Row.__build(size))
     
-    # ---- Methods ----
-    def change_digit(self, col: int, digit: int):
-        self.get_members()[col].change_digit(digit) 
+    @staticmethod
+    def __build(size):
+        res = []
+        for _ in range(size):
+            res.append(Tile())
+        return res
+         
+
+class Column(TileGroup):
+    def __init__(self, rows: list[Row], idx: int):
+        super().__init__(Column.__build(rows, idx))
+    
+    @staticmethod
+    def __build(rows: list[Row], idx: int):
+        res = []
+        for row in rows:
+            res.append(row.get_members()[idx])
+        return res
 
 
-class SudokuColumn(TileGrouping):
-    """Set of 9 tiles, vertically adjecent."""
-    def __init__(self, members: list[Tile]) -> None:
-        super().__init__(members)
-        self.subscribe_tiles()
+class Section(TileGroup):
+    def __init__(self, rows: list[Row], idx: int):
+        super().__init__(Section.__build(rows, idx))
 
-
-class SudokuSection(TileGrouping):
-    """3x3 matrix of tiles. Sections are mutually exclusive."""
-    def __init__(self, members: list[Tile]) -> None:
-        super().__init__(members)
-        self.subscribe_tiles()
-
-
-       
-
-
+    @staticmethod
+    def __build(rows, idx):
+        res = []
+        for i in range(3):
+            for j in range(3):
+                row = floor(idx / 3)*3 + i
+                col = (j % 3)+3*(idx % 3)
+                res.append(rows[row].get_members()[col])
+        return res
 
