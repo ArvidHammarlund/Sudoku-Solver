@@ -16,7 +16,8 @@ class Tile(object):
     # --- METHODS ---
 
     def valid_assignment(self, digit: int):
-        return not any([x.contains(digit) for x in self.__subscriptions])     
+        return not any([x.contains(digit) for x in self.__subscriptions])
+                    #or self.__digit != 0)
 
     def add_subscription(self, grouping):
         self.__subscriptions.append(grouping)
@@ -59,48 +60,6 @@ class TileGroup(ABC, object):
     def set_digit(self, idx: int, digit: int):
         self.__members[idx].set_digit(digit)
 
-    def ref(self):
-        return self
-
     def get_members(self):
         return self.__members
-
-
-class Row(TileGroup, object):
-    def __init__(self, size: int):
-        super().__init__(Row.__build(size))
-    
-    @staticmethod
-    def __build(size):
-        res = []
-        for _ in range(size):
-            res.append(Tile())
-        return res
-         
-
-class Column(TileGroup):
-    def __init__(self, rows: list[Row], idx: int):
-        super().__init__(Column.__build(rows, idx))
-    
-    @staticmethod
-    def __build(rows: list[Row], idx: int):
-        res = []
-        for row in rows:
-            res.append(row.get_members()[idx])
-        return res
-
-
-class Section(TileGroup):
-    def __init__(self, rows: list[Row], idx: int):
-        super().__init__(Section.__build(rows, idx))
-
-    @staticmethod
-    def __build(rows, idx):
-        res = []
-        for i in range(3):
-            for j in range(3):
-                row = floor(idx / 3)*3 + i
-                col = (j % 3)+3*(idx % 3)
-                res.append(rows[row].get_members()[col])
-        return res
 

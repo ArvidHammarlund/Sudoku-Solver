@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 
 class Controller(ABC):
     @abstractmethod 
-    def query_action(self) -> str:
+    def do_solver(self) -> str:
         pass
 
     @abstractmethod
@@ -16,30 +16,33 @@ class Controller(ABC):
         pass
 
     @abstractmethod
-    def query_tile(self) -> str:
+    def query_position(self) -> tuple():
         pass
 
 class ControllerCLI(Controller):
-    def query_action(self):
-        inp = input("""
-    Please enter which action to proceede with:
-        
-        * (S)olver let the computer assign a valid tile.
-
-        * (H)ighlight illuminates the invalid spots for a given digit
-                to help you with the principle of exclusion
-
-        * (A)ssign a tile a new digit.
-
-""")
-        return inp
+    @staticmethod
+    def query_digit():
+        while True:
+            try: 
+                inp = int(input("Enter digit 1-9 >> "))
+            except Exception:
+                print("invalid!")
+            else:
+                if inp > 0 and inp < 10:
+                    return inp
+            
     
-    def query_digit(self):
-        inp = input("Enter digit 1-9 >> ")
-        return int(inp)
+    @staticmethod
+    def query_position():
+        print("Row number")
+        row = ControllerCLI.query_digit()
+        print("Column number")
+        col = ControllerCLI.query_digit()
+        return row - 1, col - 1
 
-    def query_tile(self):
-        return input("Please a tiles corresponding row and col >>")
-
+    @staticmethod
+    def do_solver():
+        inp = input("Sovler?")
+        return bool(inp)
 
 
