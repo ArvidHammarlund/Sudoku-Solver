@@ -1,25 +1,18 @@
-#
-# Description: Sudoku board componants.
-# Author: Arvid Hammarlund
-# Version: 0.0.1
-#
-
-from abc import ABC, abstractmethod
-from math import floor
 
 class Tile(object):
-    """Unit of area displaying either 0-9, where 0 signifies empty."""
+
+    # --- Constructor --- 
+
     def __init__(self, digit: int = 0) -> None:
         self.__digit = digit
         self.__subscriptions: list[TileGroup] = []
     
     # --- METHODS ---
 
-    def valid_assignment(self, digit: int):
+    def valid_assignment(self, digit: int) -> bool:
         return not any([x.contains(digit) for x in self.__subscriptions])
-                    #or self.__digit != 0)
 
-    def add_subscription(self, grouping):
+    def add_subscription(self, grouping) -> None:
         self.__subscriptions.append(grouping)
 
     # --- SETTERS & GETTERS ---
@@ -31,35 +24,37 @@ class Tile(object):
         self.__digit = digit
 
 
-class TileGroup(ABC, object):
-    """Collection of references to Tile objects."""
+class TileGroup(object):
+    
+    # --- Constructor ---
+
     def __init__(self, members: list[Tile]) -> None:
         self.__members = members
         self.__subscribe_members()
 
     # --- METHODS ---
    
-    def valid_assignments(self, digit):
+    def valid_assignments(self, digit) -> list[bool]:
         return [member.valid_assignment(digit) for member in self.__members]
 
-    def parse(self):
+    def parse(self) -> list[int]:
         return [member.get_digit() for member in self.__members]
 
     def contains(self, digit: int) -> bool:
-        """Checks whether grouping already contains n"""
         return digit in self.parse()
 
     # --- HELPERS ---
     
-    def __subscribe_members(self):  
+    def __subscribe_members(self) -> None:  
         for tile in self.__members:
             tile.add_subscription(self)
 
     # --- SETTERS & GETTERS ---
 
-    def set_digit(self, idx: int, digit: int):
+    def set_digit(self, idx: int, digit: int) -> None:
         self.__members[idx].set_digit(digit)
 
     def get_members(self):
         return self.__members
+
 

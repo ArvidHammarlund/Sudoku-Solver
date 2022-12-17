@@ -1,23 +1,3 @@
-#
-# Decription: User input interface
-# Author: Arvid Hammarlund
-# Version: 0.0.1
-#
-
-from abc import ABC, abstractmethod
-
-class Controller(ABC):
-    @abstractmethod 
-    def do_solver(self) -> str:
-        pass
-
-    @abstractmethod
-    def query_digit(self) -> int:
-        pass
-
-    @abstractmethod
-    def query_position(self) -> tuple():
-        pass
 
 class ControllerCLI(Controller):
     @staticmethod
