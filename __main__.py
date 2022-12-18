@@ -1,3 +1,3 @@
-from Application import SudokuGUI
+from app import SudokuGUI
 
 SudokuGUI()

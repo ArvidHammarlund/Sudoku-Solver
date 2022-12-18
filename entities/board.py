@@ -1,5 +1,5 @@
 
-from entities.tiles import Tile, TileGroup
+from .tiles import Tile, TileGroup, TileSection
 
 
 class Board(object):
@@ -10,8 +10,8 @@ class Board(object):
 
     # --- Constructor --- 
 
-    def __init__(self):
-        self.__rows = []
+    def __init__(self, template=[]):
+        self.__rows = template
         self.__cols = []
         self.__sections = []
         self.__build()
@@ -26,9 +26,7 @@ class Board(object):
     
     def assign_valids(self, digit):
         for section in self.__sections:
-            tiles = [tile for tile in section.get_members() if tile.valid_assignment() and tile.get_digit == 0]
-            if len(tiles) == 1:
-                tiles[0].set_digit(digit)
+            section.assign_valids(digit)
 
     # --- Helpers ---
 
@@ -38,10 +36,10 @@ class Board(object):
         self.__build_sections(Board.SIZE / 3)
 
     def __build_rows(self) -> None:
-        self.__rows = [self.__build_row() for _ in range(Board.SIZE)]
+        self.__rows = [self.__build_row(i) for i in range(Board.SIZE)]
 
-    def __build_row(self) -> list[Tile]:
-        return TileGroup([Tile() for _ in range(Board.SIZE)])
+    def __build_row(self, idx) -> list[Tile]:
+        return TileGroup([Tile(self.__rows[idx][j] if self.__rows else 0) for j in range(Board.SIZE)])
 
     def __build_cols(self) -> None:
         self.__cols = [self.__build_col(i) for i in range(Board.SIZE)]
@@ -61,11 +59,18 @@ class Board(object):
         @param row: the n consequent constellation in y axis.
         @param col: the n consequent constellation in x axis.
         """
-        return [row.get_members()[col*size:col+size] for row in self.__rows[row*size:row+size]] 
+        start_row = row * size
+        end_row = start_row + size
+        start_col = col * size
+        end_col = start_col + size
+        return TileSection([tile for row in self.__rows[start_row:end_row] 
+                               for tile in row.get_members()[start_col:end_col]])
 
     # --- Setters & Getters ---
 
     def set_digit(self, row: int, col: int, digit: int) -> None:
-        self.__rows[row].set_digit(col, digit)
-
+        try:
+            self.__rows[row].set_digit(col, digit)
+        except ValueError as e:
+            print(e)
 

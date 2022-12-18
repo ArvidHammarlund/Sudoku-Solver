@@ -1,4 +1,5 @@
 
+
 class Tile(object):
 
     # --- Constructor --- 
@@ -21,6 +22,8 @@ class Tile(object):
         return self.__digit
 
     def set_digit(self, digit: int) -> None:
+        if (not self.valid_assignment(digit)):
+            raise ValueError("Exisiting digit does not allow placement!")
         self.__digit = digit
 
 
@@ -41,7 +44,7 @@ class TileGroup(object):
         return [member.get_digit() for member in self.__members]
 
     def contains(self, digit: int) -> bool:
-        return digit in self.parse()
+        return digit in self.parse() if digit !=0 else False
 
     # --- HELPERS ---
     
@@ -57,4 +60,13 @@ class TileGroup(object):
     def get_members(self):
         return self.__members
 
+
+class TileSection(TileGroup):
+
+    # --- Methods ---
+
+    def assign_valids(self, digit: int) -> None:
+        valid_tiles = [tile for tile in super().get_members() if tile.valid_assignment(digit) and tile.get_digit() == 0]
+        if len(valid_tiles) == 1:
+            valid_tiles[0].set_digit(digit)
 
