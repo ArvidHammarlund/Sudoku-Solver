@@ -66,7 +66,11 @@ class TileSection(TileGroup):
     # --- Methods ---
 
     def assign_valids(self, digit: int) -> None:
-        valid_tiles = [tile for tile in super().get_members() if tile.valid_assignment(digit) and tile.get_digit() == 0]
+        valid_tiles = [
+            tile for tile in super().get_members()
+            if tile.valid_assignment(digit)
+            if tile.get_digit() == 0
+        ]
         if len(valid_tiles) == 1:
             valid_tiles[0].set_digit(digit)
 

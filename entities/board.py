@@ -7,6 +7,7 @@ class Board(object):
     # --- Static attributes ---
 
     SIZE = 9
+    SPLITS = 3
 
     # --- Constructor --- 
 
@@ -33,13 +34,16 @@ class Board(object):
     def __build(self) -> None:
         self.__build_rows()
         self.__build_cols()
-        self.__build_sections(Board.SIZE / 3)
+        self.__build_sections(Board.SIZE / Board.SPLITS)
 
     def __build_rows(self) -> None:
         self.__rows = [self.__build_row(i) for i in range(Board.SIZE)]
 
     def __build_row(self, idx) -> list[Tile]:
-        return TileGroup([Tile(self.__rows[idx][j] if self.__rows else 0) for j in range(Board.SIZE)])
+        return TileGroup([
+            Tile(self.__rows[idx][row] if self.__rows else 0)
+            for row in range(Board.SIZE)
+        ])
 
     def __build_cols(self) -> None:
         self.__cols = [self.__build_col(i) for i in range(Board.SIZE)]
@@ -51,7 +55,10 @@ class Board(object):
         """
         @param size: absolute height & width of constellation.
         """
-        self.__sections = [self.__build_section(int(size), int(i / size), int(i % size)) for i in range(Board.SIZE)]
+        self.__sections = [
+            self.__build_section(int(size), int(i / size), int(i % size))
+            for i in range(Board.SIZE)
+        ]
 
     def __build_section(self, size: int, row: int, col: int):
         """
@@ -63,8 +70,10 @@ class Board(object):
         end_row = start_row + size
         start_col = col * size
         end_col = start_col + size
-        return TileSection([tile for row in self.__rows[start_row:end_row] 
-                               for tile in row.get_members()[start_col:end_col]])
+        return TileSection([
+            tile for row in self.__rows[start_row:end_row] 
+            for tile in row.get_members()[start_col:end_col]
+        ])
 
     # --- Setters & Getters ---
 
